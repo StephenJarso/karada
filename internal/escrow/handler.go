@@ -29,6 +29,7 @@ func (h *Handler) Routes() http.Handler {
 	r.Post("/", h.CreateEscrow)
 	r.Post("/ship", h.ShipEscrow)
 	r.Post("/cancel", h.CancelEscrow)
+	r.Post("/{paymentHash}/pay", h.PayEscrow)
 	r.Get("/{paymentHash}", h.GetEscrow)
 	r.Get("/", h.ListEscrows)
 
@@ -68,6 +69,19 @@ func (h *Handler) ShipEscrow(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"status": "shipped"})
+}
+
+// PayEscrow handles POST /api/v1/escrow/{paymentHash}/pay
+func (h *Handler) PayEscrow(w http.ResponseWriter, r *http.Request) {
+	paymentHash := chi.URLParam(r, "paymentHash")
+
+	if err := h.service.PayEscrow(r.Context(), paymentHash); err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"status": "held"})
 }
 
 // CancelEscrow handles POST /api/v1/escrow/cancel
