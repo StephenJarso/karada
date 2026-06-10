@@ -10,9 +10,9 @@ import (
 
 // Service handles escrow business logic
 type Service struct {
-	repo    *Repository
-	ln      *lightning.Client
-	expiry  int64
+	repo   *Repository
+	ln     *lightning.Client
+	expiry int64
 }
 
 // NewService creates a new escrow service
@@ -103,8 +103,7 @@ func (s *Service) ReleaseFunds(ctx context.Context, trackingNumber string) error
 	}
 
 	// Settle the invoice with the preimage
-	_, err := s.ln.SettleInvoice(escrow.Preimage)
-	if err != nil {
+	if err := s.ln.SettleInvoice(escrow.Preimage); err != nil {
 		return err
 	}
 
@@ -120,8 +119,7 @@ func (s *Service) CancelEscrow(ctx context.Context, paymentHash string) error {
 	}
 
 	// Cancel the invoice
-	_, err := s.ln.CancelInvoice(paymentHash)
-	if err != nil {
+	if err := s.ln.CancelInvoice(paymentHash); err != nil {
 		return err
 	}
 
