@@ -174,7 +174,7 @@ export default function Home() {
         <div className="flex items-center gap-xs">
           <span className="material-symbols-outlined text-primary">security</span>
           <h1 className="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary">
-            {screen === 'merchant' ? 'Lightning Escrow' : screen === 'checkout' ? 'Customer: Checkout' : 'Oracle Simulator'}
+                      {screen === 'merchant' ? 'Karada' : screen === 'checkout' ? 'Karada: Checkout' : 'Karada: Oracle'}
           </h1>
         </div>
         <div className="w-xs h-xs rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden border border-outline-variant">
