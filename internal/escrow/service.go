@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/karada/pkg/crypto"
 	"github.com/karada/internal/lightning"
+	"github.com/karada/pkg/crypto"
 )
 
 // Service handles escrow business logic
@@ -26,17 +26,18 @@ func NewService(repo *Repository, ln *lightning.Client, expiry int64) *Service {
 
 // CreateEscrowRequest represents the request to create an escrow
 type CreateEscrowRequest struct {
-	AmountSats  int64
-	Description string
+	AmountSats  int64  `json:"amount_sats"`
+	Description string `json:"description"`
 }
 
 // CreateEscrowResponse represents the response with payment request
 type CreateEscrowResponse struct {
-	PaymentRequest string
-	PaymentHash    string
-	Preimage       string
-	AmountSats     int64
-	Expiry         int64
+	PaymentRequest string `json:"payment_request"`
+	PaymentHash    string `json:"payment_hash"`
+	Preimage       string `json:"preimage"`
+	AmountSats     int64  `json:"amount_sats"`
+	Status         string `json:"status"`
+	Expiry         int64  `json:"expiry"`
 }
 
 // CreateEscrow creates a new HODL invoice escrow
@@ -80,19 +81,29 @@ func (s *Service) CreateEscrow(ctx context.Context, req *CreateEscrowRequest) (*
 		PaymentHash:    paymentHash,
 		Preimage:       preimage,
 		AmountSats:     req.AmountSats,
+		Status:         string(StatusPending),
 		Expiry:         s.expiry,
 	}, nil
 }
 
 // ShipEscrowRequest represents the request to log shipment
 type ShipEscrowRequest struct {
-	PaymentHash    string
-	TrackingNumber string
+	PaymentHash    string `json:"payment_hash"`
+	TrackingNumber string `json:"tracking_number"`
 }
 
 // ShipEscrow logs a shipment for an escrow
 func (s *Service) ShipEscrow(ctx context.Context, req *ShipEscrowRequest) error {
 	return s.repo.UpdateTrackingNumber(req.PaymentHash, req.TrackingNumber)
+}
+
+// PayEscrow simulates the buyer paying the invoice (funds become HELD)
+func (s *Service) PayEscrow(ctx context.Context, paymentHash string) error {
+	_, ok := s.repo.GetByPaymentHash(paymentHash)
+	if !ok {
+		return ErrEscrowNotFound
+	}
+	return s.repo.UpdateStatus(paymentHash, StatusHeld)
 }
 
 // ReleaseFunds releases funds to the merchant (called by oracle on delivery)
