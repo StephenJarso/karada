@@ -157,6 +157,39 @@ Result: Karada instantly evaluates the proof, provides the secret preimage to th
 
 ---
 
+## 🚀 Running the Project
+
+### Backend (Go)
+
+```bash
+# Set environment variables
+export LND_RPC_HOST="127.0.0.1:10009"
+export LND_MACAROON_PATH="/path/to/admin.macaroon"
+export LND_TLS_CERT_PATH="/path/to/tls.cert"
+
+# Run the server
+go run cmd/server/main.go
+```
+
+The server runs on `http://localhost:8080` with endpoints:
+- `POST /api/v1/escrow` - Create escrow
+- `POST /api/v1/escrow/ship` - Log shipment
+- `POST /api/v1/escrow/cancel` - Cancel escrow
+- `GET /api/v1/escrow/{paymentHash}` - Get escrow status
+- `POST /api/v1/oracle/simulate-delivery` - Simulate delivery (demo)
+
+### Frontend (Next.js)
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The frontend runs on `http://localhost:3000`.
+
+---
+
 ## 📜 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
