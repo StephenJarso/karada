@@ -402,30 +402,41 @@ export default function Home() {
             </div>
 
             {/* QR Code Section */}
-            {escrow.status === 'PENDING' && (
-              <div className="mt-lg relative group cursor-pointer w-full max-w-md">
-                <div className="absolute inset-0 qr-gradient opacity-20 blur-2xl group-hover:opacity-40 transition-opacity"></div>
-                <div className="glass-panel p-md rounded-full relative z-10 flex flex-col items-center gap-md border-primary/20">
-                  <div className="bg-white p-base rounded-lg shadow-[0_0_20px_rgba(247,147,26,0.3)]">
-                    <QRCodeSVG
-                      value={escrow.payment_request}
-                      size={240}
-                      level="M"
-                      includeMargin
-                    />
-                  </div>
-                  <div className="flex flex-col items-center gap-xs">
-                    <p className="font-code-sm text-code-sm text-on-surface-variant opacity-70">
-                      {escrow.payment_request.slice(0, 15)}...
-                    </p>
-                    <button className="flex items-center gap-xs text-secondary font-label-caps text-label-caps hover:text-primary-container transition-colors active:scale-95 duration-200">
-                      <span className="material-symbols-outlined text-sm">content_copy</span>
-                      Copy Invoice Address
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
+                        {escrow.status === 'PENDING' && (
+                          <>
+                            <div className="mt-lg relative cursor-pointer w-full max-w-md">
+                              <div className="absolute inset-0 qr-gradient opacity-20 blur-2xl transition-opacity"></div>
+                              <div className="glass-panel p-md rounded-full flex flex-col items-center gap-md border-primary/20">
+                                <div className="bg-white p-base rounded-lg shadow-[0_0_20px_rgba(247,147,26,0.3)]">
+                                  <QRCodeSVG
+                                    value={escrow.payment_request}
+                                    size={240}
+                                    level="M"
+                                    includeMargin
+                                  />
+                                </div>
+                                <div className="flex flex-col items-center gap-xs">
+                                  <p className="font-code-sm text-code-sm text-on-surface-variant opacity-70">
+                                    {escrow.payment_request.slice(0, 15)}...
+                                  </p>
+                                  <button className="flex items-center gap-xs text-secondary font-label-caps text-label-caps hover:text-primary-container transition-colors active:scale-95 duration-200">
+                                    <span className="material-symbols-outlined text-sm">content_copy</span>
+                                    Copy Invoice Address
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            {/* Simulate Payment Button */}
+                            <button
+                              onClick={simulatePayment}
+                              disabled={loading}
+                              className="w-full mt-md bg-primary-container text-on-primary-container py-sm rounded-lg font-label-caps text-label-caps active:scale-[0.98] transition-transform flex items-center justify-center gap-xs disabled:opacity-50"
+                            >
+                              <span className="material-symbols-outlined text-sm">bolt</span>
+                              {loading ? 'Processing...' : 'Simulate Payment'}
+                            </button>
+                          </>
+                        )}
 
             {/* Item Details */}
             <div className="mt-lg w-full max-w-md space-y-sm">
