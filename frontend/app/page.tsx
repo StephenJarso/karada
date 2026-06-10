@@ -141,7 +141,7 @@ export default function Home() {
         return (
           <div className="glass-panel rounded-xl p-sm border-primary-container/30 flex items-center gap-sm bg-primary-container/10">
             <div className="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center text-on-primary-container shadow-lg">
-              <span className="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+              <span className="material-symbols-outlined" data-icon="verified_user" aria-hidden="true">verified_user</span>
             </div>
             <div>
               <p className="font-label-caps text-label-caps text-primary-container uppercase">Cryptographic Verification</p>
@@ -150,11 +150,11 @@ export default function Home() {
           </div>
         )
       case 'SHIPPED':
-        return <span className="px-3 py-1 rounded-full text-sm font-bold bg-purple-100 text-purple-800">Item Dispatched</span>
+        return <span className="px-3 py-1 rounded-full text-sm font-bold bg-secondary-container text-on-secondary">Item Dispatched</span>
       case 'SETTLED':
-        return <span className="px-3 py-1 rounded-full text-sm font-bold bg-green-100 text-green-800">Transaction Complete</span>
+        return <span className="px-3 py-1 rounded-full text-sm font-bold bg-primary-container text-on-primary-container">Transaction Complete</span>
       default:
-        return <span className="px-3 py-1 rounded-full text-sm font-bold bg-gray-100 text-gray-800">{status}</span>
+        return <span className="px-3 py-1 rounded-full text-sm font-bold bg-surface-container-highest text-on-surface-variant">{status}</span>
     }
   }
 
@@ -172,13 +172,13 @@ export default function Home() {
       {/* TopAppBar */}
       <header className="fixed top-0 w-full z-50 bg-surface-container-low border-b border-outline-variant flex items-center justify-between px-sm h-xl">
         <div className="flex items-center gap-xs">
-          <span className="material-symbols-outlined text-primary">security</span>
+          <span className="material-symbols-outlined text-primary" aria-hidden="true">security</span>
           <h1 className="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary">
                       Karada
           </h1>
         </div>
         <div className="w-xs h-xs rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden border border-outline-variant">
-          <span className="material-symbols-outlined text-on-surface-variant text-[20px]">person</span>
+          <span className="material-symbols-outlined text-on-surface-variant text-[20px]" aria-hidden="true">person</span>
         </div>
       </header>
 
@@ -248,7 +248,7 @@ export default function Home() {
 
               {/* Protocol Status Info */}
               <div className="bg-surface-container-high/50 p-sm rounded-lg border-l-2 border-primary flex gap-sm items-start">
-                <span className="material-symbols-outlined text-primary text-[20px]" data-icon="info">info</span>
+                <span className="material-symbols-outlined text-primary text-[20px]" data-icon="info" aria-hidden="true">info</span>
                 <p className="font-label-caps text-[10px] leading-relaxed text-on-surface-variant">
                   Your escrow will be secured by a HODL invoice. Funds are only settled upon cryptographic proof of delivery or oracle mediation.
                 </p>
@@ -285,7 +285,7 @@ export default function Home() {
             {escrow.status === 'HELD' && (
               <div className="glass-panel rounded-xl p-sm border-primary-container/30 mb-md flex items-center gap-sm bg-primary-container/10">
                 <div className="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center text-on-primary-container shadow-lg">
-                  <span className="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+                  <span className="material-symbols-outlined" data-icon="verified_user" aria-hidden="true">verified_user</span>
                 </div>
                 <div>
                   <p className="font-label-caps text-label-caps text-primary-container uppercase">Cryptographic Verification</p>
@@ -320,7 +320,13 @@ export default function Home() {
             <div className="glass-panel rounded-xl overflow-hidden mb-md">
               <div className="bg-surface-container-high px-sm py-xs border-b border-outline-variant flex justify-between items-center">
                 <span className="font-label-caps text-label-caps text-on-surface-variant">TXID: 8C4F...01BA</span>
-                <span className="material-symbols-outlined text-on-surface-variant text-sm cursor-pointer hover:text-primary transition-colors" data-icon="content_copy">content_copy</span>
+                <button
+                  onClick={() => navigator.clipboard.writeText('8C4F...01BA')}
+                  className="material-symbols-outlined text-on-surface-variant text-sm cursor-pointer hover:text-primary transition-colors"
+                  aria-label="Copy transaction ID"
+                >
+                  content_copy
+                </button>
               </div>
               <div className="p-sm space-y-md">
                 <div className="grid grid-cols-2 gap-sm">
@@ -335,7 +341,7 @@ export default function Home() {
                 </div>
                 <div className="pt-sm border-t border-outline-variant/30 flex justify-between items-center">
                   <div className="flex items-center gap-xs">
-                    <span className="material-symbols-outlined text-secondary text-sm" data-icon="inventory_2">inventory_2</span>
+                    <span className="material-symbols-outlined text-secondary text-sm" data-icon="inventory_2" aria-hidden="true">inventory_2</span>
                     <span className="font-body-md text-body-md">{escrow.description || 'High-End Precision Optics'}</span>
                   </div>
                   <span className="font-code-sm text-code-sm text-on-surface-variant">${(escrow.amount_sats * 0.0248).toFixed(2)} USD</span>
@@ -357,7 +363,7 @@ export default function Home() {
                       value={trackingNumber}
                       onChange={(e) => setTrackingNumber(e.target.value)}
                     />
-                    <span className="absolute right-sm top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant" data-icon="local_shipping">local_shipping</span>
+                    <span className="absolute right-sm top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant" data-icon="local_shipping" aria-hidden="true">local_shipping</span>
                   </div>
                 </div>
                 <button
@@ -368,7 +374,7 @@ export default function Home() {
                   <span className="font-label-caps text-label-caps text-lg tracking-widest uppercase">
                     {loading ? 'Processing...' : 'Dispatch Item'}
                   </span>
-                  <span className="material-symbols-outlined" data-icon="send">send</span>
+                  <span className="material-symbols-outlined" data-icon="send" aria-hidden="true">send</span>
                 </button>
                 <p className="mt-md text-center font-body-md text-[12px] text-on-surface-variant px-md">
                   By dispatching, you confirm that the item has been handed to the carrier. The Oracle will monitor this tracking number for final fund release.
@@ -419,8 +425,11 @@ export default function Home() {
                                   <p className="font-code-sm text-code-sm text-on-surface-variant opacity-70">
                                     {escrow.payment_request.slice(0, 15)}...
                                   </p>
-                                  <button className="flex items-center gap-xs text-secondary font-label-caps text-label-caps hover:text-primary-container transition-colors active:scale-95 duration-200">
-                                    <span className="material-symbols-outlined text-sm">content_copy</span>
+                                  <button
+                                    onClick={() => navigator.clipboard.writeText(escrow.payment_request)}
+                                    className="flex items-center gap-xs text-secondary font-label-caps text-label-caps hover:text-primary-container transition-colors active:scale-95 duration-200"
+                                  >
+                                    <span className="material-symbols-outlined text-sm" aria-hidden="true">content_copy</span>
                                     Copy Invoice Address
                                   </button>
                                 </div>
@@ -432,7 +441,7 @@ export default function Home() {
                               disabled={loading}
                               className="w-full mt-md bg-primary-container text-on-primary-container py-sm rounded-lg font-label-caps text-label-caps active:scale-[0.98] transition-transform flex items-center justify-center gap-xs disabled:opacity-50"
                             >
-                              <span className="material-symbols-outlined text-sm">bolt</span>
+                              <span className="material-symbols-outlined text-sm" aria-hidden="true">bolt</span>
                               {loading ? 'Processing...' : 'Simulate Payment'}
                             </button>
                           </>
@@ -457,7 +466,7 @@ export default function Home() {
                 <div className="flex justify-between items-center relative z-10">
                   <div className="flex flex-col items-center gap-xs relative">
                     <div className="w-xs h-xs rounded-full bg-secondary pulse-teal flex items-center justify-center">
-                      <span className="material-symbols-outlined text-on-secondary text-sm">person</span>
+                      <span className="material-symbols-outlined text-on-secondary text-sm" aria-hidden="true">person</span>
                     </div>
                     <span className="font-label-caps text-[10px] text-on-surface-variant">Customer</span>
                   </div>
@@ -466,14 +475,14 @@ export default function Home() {
                   </div>
                   <div className="flex flex-col items-center gap-xs relative">
                     <div className={`w-xs h-xs rounded-full flex items-center justify-center ${escrow.status === 'HELD' || escrow.status === 'SHIPPED' || escrow.status === 'SETTLED' ? 'bg-secondary-container border border-secondary' : 'bg-surface-container-highest border border-outline'}`}>
-                      <span className="material-symbols-outlined text-on-surface-variant text-sm">lock</span>
+                      <span className="material-symbols-outlined text-on-surface-variant text-sm" aria-hidden="true">lock</span>
                     </div>
                     <span className="font-label-caps text-[10px] text-on-surface-variant">HODL Lock</span>
                   </div>
                   <div className="flex-grow h-[1px] bg-outline-variant border-dashed mx-xs"></div>
                   <div className="flex flex-col items-center gap-xs relative">
                     <div className={`w-xs h-xs rounded-full flex items-center justify-center ${escrow.status === 'SHIPPED' || escrow.status === 'SETTLED' ? 'bg-primary-container border border-primary' : 'bg-surface-container-highest border border-outline opacity-40'}`}>
-                      <span className="material-symbols-outlined text-on-surface-variant text-sm">storefront</span>
+                      <span className="material-symbols-outlined text-on-surface-variant text-sm" aria-hidden="true">storefront</span>
                     </div>
                     <span className={`font-label-caps text-[10px] ${escrow.status === 'SHIPPED' || escrow.status === 'SETTLED' ? 'text-on-surface-variant' : 'text-on-surface-variant opacity-40'}`}>Merchant</span>
                   </div>
@@ -586,7 +595,7 @@ export default function Home() {
                         disabled={loading}
                         className="w-full h-xl bg-primary text-on-primary font-headline-lg-mobile text-headline-lg-mobile font-bold rounded-lg flex items-center justify-center gap-sm active:scale-95 transition-transform disabled:opacity-50"
                       >
-                        <span className="material-symbols-outlined">local_shipping</span>
+                        <span className="material-symbols-outlined" aria-hidden="true">local_shipping</span>
                         {loading ? 'Processing...' : 'Simulate Courier Delivery'}
                       </button>
                     )}
@@ -624,7 +633,7 @@ export default function Home() {
                       <span className="font-code-sm text-code-sm text-on-surface">LX-2291-5501-DE</span>
                     </div>
                     <div className="flex items-center gap-xs text-secondary">
-                      <span className="material-symbols-outlined text-sm">check_circle</span>
+                      <span className="material-symbols-outlined text-sm" aria-hidden="true">check_circle</span>
                       <span className="font-label-caps text-[10px]">SETTLED</span>
                     </div>
                   </div>
