@@ -1,4 +1,4 @@
-# Karada (🎴) — Trustless Cross-Border Lightning Escrow
+# Karada (🎴) — Trustless Cross-Border Lightning Escrow.
 
 **Karada** (from the Swahili concept of trust and credit) is a trustless, peer-to-peer international e-commerce escrow protocol built natively on Bitcoin's Layer 2 Lightning Network. It eliminates the "cross-border trust deficit" between global buyers (e.g., in the USA) and merchants in emerging markets (e.g., in Kenya) without relying on traditional banks, expensive credit card rails, or third-party escrow services.
 
