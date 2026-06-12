@@ -1,6 +1,6 @@
 # Karada (🎴) — Trustless Cross-Border Lightning Escrow
 
-**Karada** (from the Swahili concept of trust and credit) is a trustless, peer-to-peer international e-commerce escrow protocol built natively on Bitcoin's Layer 2 Lightning Network. It eliminates the "cross-border trust deficit" between global buyers (e.g., in the USA) and merchants in emerging markets (e.g., in Kenya) without relying on traditional banks, expensive credit card rails, or third-party escrow services.
+**Karada** (from the Swahili concept of trust and credit) is a trustless, peer-to-peer international e-commerce escrow protocol built natively on Bitcoin's Layer 2 Lightning Network. It eliminates the "cross-border trust deficit" between global buyers (e.g., in the USA) and merchants in emerging markets (e.g., in Kenya) without relying on traditional banks, expensive credit card rails, or third-party escrow services. The merchant side is backed by a real local `lnd` node for production-grade escrow.
 
 ---
 
@@ -13,7 +13,7 @@ When an artisan in Nairobi sells high-value goods to a buyer in New York, a mass
 * **The Legacy Fiat Wall:** Traditional escrow providers charge excessive commissions (3%–6%), demand high international wire minimums, and tie up capital for 3 to 7 business days.
 
 ### The Karada Engine
-Karada replaces centralized multi-million-dollar banking intermediaries with native **Bitcoin Script Primitives**—specifically **Hash Time-Locked Contracts (HTLCs)** and **HODL Invoices**. 
+Karada replaces centralized multi-million-dollar banking intermediaries with native **Bitcoin Script Primitives**—specifically **Hash Time-Locked Contracts (HTLCs)** and **HODL Invoices**.
 * Capital is locked cryptographically *in flight* inside the Lightning Network.
 * **No Chargebacks:** Once the transaction settles, payments are final and mathematically irreversible.
 * **Near-Zero Fees:** Settlement happens instantly for pennies (satoshis), allowing merchants to retain 99.9% of their margins.
@@ -46,58 +46,48 @@ v                                                      v
 
 ## 🏗️ Technical Stack & Project Structure
 
-The current implementation uses a lightweight, demo-friendly stack that is easy to run locally.
-
 * **Backend Engine:** Python 3 + Flask
 * **Frontend:** Next.js 14 + React + TypeScript + Tailwind CSS
 * **Datastore:** SQLite (with schema migrations)
+* **Lightning Node:** Local `lnd` (regtest via Docker)
 * **Testing:** pytest
-
-```text
-karada/
-├── app/
-│   └── main.py              # Flask app factory and route registration
-├── cmd/
-│   └── server/
-│       └── main.py          # Backend entry point
-├── internal/
-│   ├── escrow/
-│   │   ├── handler.py       # REST endpoints for escrow actions
-│   │   ├── service.py       # Escrow lifecycle and settlement logic
-│   │   ├── repository.py    # SQLite-backed persistence layer
-│   │   └── migrations.py    # Database schema initialization
-│   ├── lightning/
-│   │   └── client.py        # Demo Lightning client abstraction
-│   └── oracle/
-│       └── courier.py       # Delivery simulation endpoint
-├── frontend/
-│   └── app/                 # Merchant and customer UI pages
-├── pkg/
-│   └── crypto/
-│       └── random.py        # Preimage and payment hash helpers
-└── tests/                   # Backend regression tests
-```
 
 ---
 
-## 🚦 Quick Start & Local Setup
+## 🚀 Running the Project with a Real Local LND Node
 
 ### Prerequisites
 
 * Python 3.11+ (recommended 3.12)
 * Node.js 18+ and npm
+* Docker & Docker Compose
 
-### 1. Clone and install dependencies
+### 1. Start the Local Bitcoin + LND Stack
+
+From the project root, spin up the local `bitcoind` + `lnd` stack. This exposes the merchant-side Lightning node on `localhost:10009` (gRPC) and `localhost:8080` (REST).
+
+```bash
+docker compose -f docker-compose.local-lnd.yml up -d
+```
+
+Wait for `karada-lnd` to finish creating the wallet (check logs with `docker logs -f karada-lnd`).
+
+## 🚀 Running the Project with a Real Local LND Node
 
 ```bash
 git clone https://github.com/your-username/karada.git
 cd karada
+```
+
+### 3. Install Python dependencies
+
+```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. Install the frontend dependencies
+### 4. Install the frontend dependencies
 
 ```bash
 cd frontend
@@ -105,29 +95,56 @@ npm install
 cd ..
 ```
 
-### 3. Run the backend
+### 5. Configure the backend for your local LND node
+
+Set the following environment variables to point Karada at the merchant's local LND instance. The Docker setup exposes:
+* gRPC: `localhost:10009`
+* REST: `localhost:8080`
+* Macaroon: `./docker/lnd-data/chain/bitcoin/regtest/admin.macaroon`
+* TLS Cert: `./docker/lnd-data/tls.cert`
+
+```bash
+export LND_RPC_SERVER="localhost:10009"
+export LND_NETWORK="regtest"
+export LND_TLS_CERT_PATH="$(pwd)/docker/lnd-data/tls.cert"
+export LND_MACAROON_PATH="$(pwd)/docker/lnd-data/chain/bitcoin/regtest/admin.macaroon"
+```
+
+### 6. Run the backend
 
 ```bash
 PORT=5001 ./.venv/bin/python cmd/server/main.py
 ```
 
-The backend will start on http://127.0.0.1:5001.
+The backend will start on .
 
-### 4. Run the frontend
+### 7. Run the frontend
 
 Open a second terminal and run:
 
 ```bash
-npm --prefix ./frontend run dev -- --hostname 0.0.0.0 --port 3000
+npm --prefix ./frontend run dev http://127.0.0.1:5001-- --hostname 0.0.0.0 --port 3000
 ```
 
 The app will be available at http://127.0.0.1:3000.
+
+### Tests
+
+```bash
+.venv/bin/python -m pytest -q
+```
+
+### Production build check
+
+```bash
+npm --prefix ./frontend run build
+```
 
 ---
 
 ## 🧪 Interactive Hackathon Simulation Script
 
-To present Karada to hackathon judges without deploying live intercontinental cargo, use the built-in HTTP simulator endpoints to demonstrate both paths:
+To present Karada to hackathon judges without deploying live intercontinental cargo, use the built-in HTTP simulator endpoints to demonstrate both paths.
 
 ### Step 1: Create a HODL Escrow Invoice
 
@@ -171,44 +188,6 @@ curl -X POST http://127.0.0.1:5001/api/v1/oracle/simulate-delivery \
 ```
 
 Result: Karada instantly evaluates the proof, provides the secret preimage to the merchant node, and the merchant's wallet balance updates on screen in real-time.
-
----
-
-## 🚀 Running the Project
-
-### Backend
-
-```bash
-PORT=5001 ./.venv/bin/python cmd/server/main.py
-```
-
-Useful backend endpoints:
-- `GET /health` - Health check
-- `POST /api/v1/escrow` - Create a new escrow
-- `POST /api/v1/escrow/ship` - Log shipment
-- `POST /api/v1/escrow/{paymentHash}/pay` - Simulate customer payment
-- `POST /api/v1/escrow/{paymentHash}/accept` - Accept and settle escrow
-- `POST /api/v1/oracle/simulate-delivery` - Simulate delivery (demo)
-
-### Frontend
-
-```bash
-npm --prefix ./frontend run dev -- --hostname 0.0.0.0 --port 3000
-```
-
-The frontend runs on http://127.0.0.1:3000.
-
-### Tests
-
-```bash
-./.venv/bin/pytest -q
-```
-
-### Production build check
-
-```bash
-npm --prefix ./frontend run build
-```
 
 ---
 

@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  bitcoind:
+    image: bitcoin/bitcoin:26
+    container_name: karada-bitcoind
+    command:
+      - bitcoind
+      - -regtest=1
+      - -server=1
+      - -rpcuser=karada
+      - -rpcpassword=karada123
+      - -txindex=1
+      - -fallbackfee=0.0002
+      - -rpcallowip=172.19.0.0/16
+      - -rpcbind=0.0.0.0
+      - -zmqpubrawblock=tcp://0.0.0.0:28332
+      - -zmqpubrawtx=tcp://0.0.0.0:28333
+    ports:
+      - "18443:18443"
+      - "18444:18444"
+      - "28332:28332"
+      - "28333:28333"
+    networks:
+      - karada
+
+  lnd:
+    image: lightninglabs/lnd:v0.17.0-beta
+    container_name: karada-lnd
+    depends_on:
+      - bitcoind
+    ports:
+      - "9735:9735"
+      - "8080:8080"
+      - "10009:10009"
+    environment:
+      - LND_CHAIN=bitcoin
+      - LND_NETWORK=regtest
+      - LND_BITCOIND_ACTIVE=1
+      - LND_BITCOIND_RPCHOST=bitcoind:18443
+      - LND_BITCOIND_RPCUSER=karada
+      - LND_BITCOIND_RPCPASS=karada123
+      - LND_RPCLISTEN=0.0.0.0:10009
+      - LND_RESTLISTEN=0.0.0.0:8080
+    command:
+      - "--noseedbackup"
+      - "--bitcoin.active"
+      - "--bitcoin.regtest"
+      - "--bitcoin.node=bitcoind"
+      - "--bitcoind.rpcuser=karada"
+      - "--bitcoind.rpcpass=karada123"
+      - "--bitcoind.rpchost=bitcoind:18443"
+      - "--rpclisten=0.0.0.0:10009"
+      - "--restlisten=0.0.0.0:8080"
+      - "--bitcoind.zmqpubrawblock=bitcoind:28332"
+      - "--bitcoind.zmqpubrawtx=bitcoind:28333"
+    networks:
+      - karada
+
+networks:
+  karada:
+    driver: bridge

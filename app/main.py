@@ -7,11 +7,18 @@ from internal.lightning.client import LightningClient
 from internal.oracle.courier import courier_bp
 
 
-def create_app() -> Flask:
+def create_app(lightning_client=None) -> Flask:
     app = Flask(__name__)
 
+    lightning_client = lightning_client or LightningClient()
+    if lightning_client.rpc_server is None:
+        raise RuntimeError(
+            "LND_RPC_SERVER is not set. The merchant requires a real local lnd node. "
+            "Start one with: docker compose -f docker-compose.local-lnd.yml up -d "
+            "and export LND_RPC_SERVER, LND_TLS_CERT_PATH, LND_MACAROON_PATH."
+        )
+
     repository = Repository()
-    lightning_client = LightningClient()
     escrow_service = EscrowService(repository, lightning_client, expiry=432 * 60 * 10)
 
     app.register_blueprint(escrow_bp(escrow_service))

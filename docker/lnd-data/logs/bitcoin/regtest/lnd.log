@@ -1,0 +1,122 @@
+2026-06-12 07:54:20.516 [WRN] LTND: open /root/.lnd/lnd.conf: no such file or directory
+2026-06-12 07:54:20.518 [INF] LTND: Version: 0.17.0-beta commit=v0.17.0-beta, build=production, logging=default, debuglevel=info
+2026-06-12 07:54:20.518 [INF] LTND: Active chain: Bitcoin (network=regtest)
+2026-06-12 07:54:20.519 [INF] RPCS: Generating TLS certificates...
+2026-06-12 07:54:20.522 [INF] RPCS: Done generating TLS certificates
+2026-06-12 07:54:20.527 [INF] RPCS: RPC server listening on 0.0.0.0:10009
+2026-06-12 07:54:20.540 [INF] RPCS: gRPC proxy started at 0.0.0.0:8080
+2026-06-12 07:54:20.541 [INF] LTND: Opening the main database, this might take a few minutes...
+2026-06-12 07:54:20.541 [INF] LTND: Opening bbolt database, sync_freelist=false, auto_compact=false
+2026-06-12 07:54:20.556 [INF] LTND: Creating local graph and channel state DB instances
+2026-06-12 07:54:20.646 [INF] CHDB: Checking for schema update: latest_version=31, db_version=31
+2026-06-12 07:54:20.646 [INF] CHDB: Checking for optional update: prune_revocation_log=false, db_version=empty
+2026-06-12 07:54:20.646 [INF] LTND: Database(s) now open (time_to_open=105.134643ms)!
+2026-06-12 07:54:20.834 [INF] CHRE: Primary chain is set to: bitcoin
+2026-06-12 07:54:43.386 [ERR] LTND: unable to create partial chain control: invalid http POST response (nil), method: getblockhash, id: 1, last error=Post "http://bitcoind:18443": dial tcp 172.19.0.2:18443: connect: connection refused
+2026-06-12 07:54:43.386 [ERR] LTND: Shutting down because error in main method: error creating wallet config: unable to create partial chain control: invalid http POST response (nil), method: getblockhash, id: 1, last error=Post "http://bitcoind:18443": dial tcp 172.19.0.2:18443: connect: connection refused
+2026-06-12 07:54:43.388 [INF] LTND: Shutdown complete
+
+2026-06-12 07:56:38.135 [WRN] LTND: open /root/.lnd/lnd.conf: no such file or directory
+2026-06-12 07:56:38.136 [INF] LTND: Version: 0.17.0-beta commit=v0.17.0-beta, build=production, logging=default, debuglevel=info
+2026-06-12 07:56:38.137 [INF] LTND: Active chain: Bitcoin (network=regtest)
+2026-06-12 07:56:38.143 [INF] RPCS: RPC server listening on 0.0.0.0:10009
+2026-06-12 07:56:38.157 [INF] RPCS: gRPC proxy started at 0.0.0.0:8080
+2026-06-12 07:56:38.161 [INF] LTND: Opening the main database, this might take a few minutes...
+2026-06-12 07:56:38.161 [INF] LTND: Opening bbolt database, sync_freelist=false, auto_compact=false
+2026-06-12 07:56:38.166 [INF] LTND: Creating local graph and channel state DB instances
+2026-06-12 07:56:38.208 [INF] CHDB: Checking for schema update: latest_version=31, db_version=31
+2026-06-12 07:56:38.209 [INF] CHDB: Checking for optional update: prune_revocation_log=false, db_version=empty
+2026-06-12 07:56:38.209 [INF] LTND: Database(s) now open (time_to_open=48.257804ms)!
+2026-06-12 07:56:38.444 [INF] CHRE: Primary chain is set to: bitcoin
+2026-06-12 07:57:01.000 [ERR] LTND: unable to create partial chain control: invalid http POST response (nil), method: getblockhash, id: 1, last error=Post "http://bitcoind:18443": dial tcp 172.19.0.2:18443: connect: connection refused
+2026-06-12 07:57:01.000 [ERR] LTND: Shutting down because error in main method: error creating wallet config: unable to create partial chain control: invalid http POST response (nil), method: getblockhash, id: 1, last error=Post "http://bitcoind:18443": dial tcp 172.19.0.2:18443: connect: connection refused
+2026-06-12 07:57:01.004 [INF] LTND: Shutdown complete
+
+2026-06-12 08:01:21.455 [WRN] LTND: open /root/.lnd/lnd.conf: no such file or directory
+2026-06-12 08:01:21.456 [INF] LTND: Version: 0.17.0-beta commit=v0.17.0-beta, build=production, logging=default, debuglevel=info
+2026-06-12 08:01:21.457 [INF] LTND: Active chain: Bitcoin (network=regtest)
+2026-06-12 08:01:21.467 [INF] RPCS: RPC server listening on 0.0.0.0:10009
+2026-06-12 08:01:21.484 [INF] RPCS: gRPC proxy started at 0.0.0.0:8080
+2026-06-12 08:01:21.484 [INF] LTND: Opening the main database, this might take a few minutes...
+2026-06-12 08:01:21.484 [INF] LTND: Opening bbolt database, sync_freelist=false, auto_compact=false
+2026-06-12 08:01:21.491 [INF] LTND: Creating local graph and channel state DB instances
+2026-06-12 08:01:21.537 [INF] CHDB: Checking for schema update: latest_version=31, db_version=31
+2026-06-12 08:01:21.538 [INF] CHDB: Checking for optional update: prune_revocation_log=false, db_version=empty
+2026-06-12 08:01:21.539 [INF] LTND: Database(s) now open (time_to_open=54.248397ms)!
+2026-06-12 08:01:21.748 [INF] CHRE: Primary chain is set to: bitcoin
+2026-06-12 08:01:21.790 [INF] LNWL: Started listening for bitcoind transaction notifications via ZMQ on 172.19.0.2:28333
+2026-06-12 08:01:21.791 [INF] LNWL: Started polling mempool to cache new transactions
+2026-06-12 08:01:21.791 [INF] LNWL: Started listening for bitcoind block notifications via ZMQ on 172.19.0.2:28332
+2026-06-12 08:01:21.817 [WRN] CHRE: unable to subscribe to zmq block events on  (bitcoind is running on 0.0.0.0:28332)
+2026-06-12 08:01:21.817 [WRN] CHRE: unable to subscribe to zmq tx events on  (bitcoind is running on 0.0.0.0:28333)
+2026-06-12 08:01:29.009 [INF] LNWL: Opened wallet
+2026-06-12 08:01:31.456 [INF] LNWL: The wallet has been unlocked without a time limit
+2026-06-12 08:01:32.089 [INF] CHRE: LightningWallet opened
+2026-06-12 08:01:32.420 [INF] HSWC: Cleaning circuits from disk for closed channels
+2026-06-12 08:01:32.460 [INF] HSWC: Finished cleaning: no closed channels found, no actions taken.
+2026-06-12 08:01:32.461 [INF] HSWC: Restoring in-memory circuit state from disk
+2026-06-12 08:01:32.459 [INF] LNWL: Started rescan from block 0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206 (height 0) for 0 addresses
+2026-06-12 08:01:32.473 [INF] LNWL: Catching up block hashes to height 0, this might take a while
+2026-06-12 08:01:32.499 [INF] HSWC: Payment circuits loaded: num_pending=0, num_open=0
+2026-06-12 08:01:32.536 [INF] LNWL: Done catching up block hashes
+2026-06-12 08:01:32.537 [INF] LNWL: Finished rescan for 0 addresses (synced to block 0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206, height 0)
+2026-06-12 08:01:32.932 [INF] SWPR: Migrating UTXO nursery finalized TXIDs
+2026-06-12 08:01:33.001 [INF] LTND: Channel backup proxy channel notifier starting
+2026-06-12 08:01:33.002 [INF] ATPL: Instantiating autopilot with active=false, max_channels=5, allocation=0.600000, min_chan_size=20000, max_chan_size=16777215, private=false, min_confs=1, conf_target=3
+2026-06-12 08:01:33.010 [INF] RRPC: Making macaroons for Router RPC Server at: /root/.lnd/data/chain/bitcoin/regtest/router.macaroon
+2026-06-12 08:01:33.054 [INF] NTFR: Baking macaroons for ChainNotifier RPC Server at: /root/.lnd/data/chain/bitcoin/regtest/chainnotifier.macaroon
+2026-06-12 08:01:33.090 [INF] SGNR: Making macaroons for Signer RPC Server at: /root/.lnd/data/chain/bitcoin/regtest/signer.macaroon
+2026-06-12 08:01:33.127 [INF] WLKT: Baking macaroons for WalletKit RPC Server at: /root/.lnd/data/chain/bitcoin/regtest/walletkit.macaroon
+2026-06-12 08:01:33.164 [INF] IRPC: Baking macaroons for invoices RPC Server at: /root/.lnd/data/chain/bitcoin/regtest/invoices.macaroon
+2026-06-12 08:01:33.203 [INF] LTND: We're not running within systemd or the service type is not 'notify'
+2026-06-12 08:01:33.211 [INF] LTND: Waiting for chain backend to finish sync, start_height=0
+2026-06-12 08:30:36.495 [INF] LTND: Received terminated
+2026-06-12 08:30:36.501 [INF] LTND: Shutting down...
+2026-06-12 08:30:36.502 [INF] LTND: Gracefully shutting down.
+2026-06-12 08:30:36.689 [INF] RPCS: Stopping RPC Server
+2026-06-12 08:30:36.690 [INF] RPCS: Stopping RouterRPC Sub-RPC Server
+2026-06-12 08:30:36.690 [INF] RPCS: Stopping ChainRPC Sub-RPC Server
+2026-06-12 08:30:36.691 [INF] RPCS: Stopping NeutrinoKitRPC Sub-RPC Server
+2026-06-12 08:30:36.692 [INF] RPCS: Stopping SignRPC Sub-RPC Server
+2026-06-12 08:30:36.692 [INF] RPCS: Stopping VersionRPC Sub-RPC Server
+2026-06-12 08:30:36.693 [INF] RPCS: Stopping WalletKitRPC Sub-RPC Server
+2026-06-12 08:30:36.693 [INF] RPCS: Stopping AutopilotRPC Sub-RPC Server
+2026-06-12 08:30:36.694 [INF] RPCS: Stopping InvoicesRPC Sub-RPC Server
+2026-06-12 08:30:36.695 [INF] RPCS: Stopping PeersRPC Sub-RPC Server
+2026-06-12 08:30:36.696 [INF] RPCS: Stopping WatchtowerClientRPC Sub-RPC Server
+2026-06-12 08:30:36.696 [INF] RPCS: Stopping WatchtowerRPC Sub-RPC Server
+2026-06-12 08:30:36.724 [INF] LTND: Shutdown complete2026-06-12 08:33:32.344 [WRN] LTND: open /root/.lnd/lnd.conf: no such file or directory
+2026-06-12 08:33:32.346 [INF] LTND: Version: 0.17.0-beta commit=v0.17.0-beta, build=production, logging=default, debuglevel=info
+2026-06-12 08:33:32.346 [INF] LTND: Active chain: Bitcoin (network=regtest)
+2026-06-12 08:33:32.353 [INF] RPCS: RPC server listening on 0.0.0.0:10009
+2026-06-12 08:33:32.369 [INF] RPCS: gRPC proxy started at 0.0.0.0:8080
+2026-06-12 08:33:32.369 [INF] LTND: Opening the main database, this might take a few minutes...
+2026-06-12 08:33:32.369 [INF] LTND: Opening bbolt database, sync_freelist=false, auto_compact=false
+2026-06-12 08:33:32.375 [INF] LTND: Creating local graph and channel state DB instances
+2026-06-12 08:33:32.396 [INF] CHDB: Checking for schema update: latest_version=31, db_version=31
+2026-06-12 08:33:32.398 [INF] CHDB: Checking for optional update: prune_revocation_log=false, db_version=empty
+2026-06-12 08:33:32.399 [INF] LTND: Database(s) now open (time_to_open=29.216953ms)!
+2026-06-12 08:33:32.625 [INF] CHRE: Primary chain is set to: bitcoin
+2026-06-12 08:33:32.712 [INF] LNWL: Started listening for bitcoind transaction notifications via ZMQ on 172.19.0.2:28333
+2026-06-12 08:33:32.712 [INF] LNWL: Started listening for bitcoind block notifications via ZMQ on 172.19.0.2:28332
+2026-06-12 08:33:32.713 [INF] LNWL: Started polling mempool to cache new transactions
+2026-06-12 08:33:32.736 [WRN] CHRE: unable to subscribe to zmq block events on  (bitcoind is running on 0.0.0.0:28332)
+2026-06-12 08:33:32.736 [WRN] CHRE: unable to subscribe to zmq tx events on  (bitcoind is running on 0.0.0.0:28333)
+2026-06-12 08:33:35.808 [INF] LNWL: Opened wallet
+2026-06-12 08:33:38.124 [INF] LNWL: The wallet has been unlocked without a time limit
+2026-06-12 08:33:38.197 [INF] CHRE: LightningWallet opened
+2026-06-12 08:33:38.230 [INF] HSWC: Cleaning circuits from disk for closed channels
+2026-06-12 08:33:38.232 [INF] HSWC: Finished cleaning: no closed channels found, no actions taken.
+2026-06-12 08:33:38.232 [INF] HSWC: Restoring in-memory circuit state from disk
+2026-06-12 08:33:38.234 [INF] HSWC: Payment circuits loaded: num_pending=0, num_open=0
+2026-06-12 08:33:38.235 [INF] LNWL: Started rescan from block 0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206 (height 0) for 0 addresses
+2026-06-12 08:33:38.242 [INF] LNWL: Catching up block hashes to height 0, this might take a while
+2026-06-12 08:33:38.243 [INF] LNWL: Done catching up block hashes
+2026-06-12 08:33:38.243 [INF] LNWL: Finished rescan for 0 addresses (synced to block 0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206, height 0)
+2026-06-12 08:33:38.251 [INF] LTND: Channel backup proxy channel notifier starting
+2026-06-12 08:33:38.252 [INF] ATPL: Instantiating autopilot with active=false, max_channels=5, allocation=0.600000, min_chan_size=20000, max_chan_size=16777215, private=false, min_confs=1, conf_target=3
+2026-06-12 08:33:38.264 [INF] LTND: We're not running within systemd or the service type is not 'notify'
+2026-06-12 08:33:38.265 [INF] LTND: Waiting for chain backend to finish sync, start_height=0
+2026-06-12 08:35:40.711 [INF] LTND: Received terminated
+2026-06-12 08:35:40.713 [INF] LTND: Shutting down...
+2026-06-12 08:35:40.715 [INF] LTND: Gracefully shutting down.

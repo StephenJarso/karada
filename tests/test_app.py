@@ -1,11 +1,32 @@
 import importlib
 
 from internal.escrow.repository import Escrow, Repository
+from internal.lightning.client import LightningClient
+
+
+class FakeLightningClient(LightningClient):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **{"rpc_server": "localhost:10009", **kwargs})
+
+    def create_hold_invoice(self, amount_sats, payment_hash, description, expiry):
+        return {
+            "payment_request": f"lnbc{amount_sats}m1p0...{payment_hash[:10]}",
+            "payment_hash": payment_hash,
+            "amount": amount_sats,
+            "description": description,
+            "expiry": expiry,
+        }
+
+    def settle_invoice(self, preimage):
+        return None
+
+    def cancel_invoice(self, payment_hash):
+        return None
 
 
 def test_app_factory_creates_flask_app():
     app_module = importlib.import_module("app.main")
-    app = app_module.create_app()
+    app = app_module.create_app(lightning_client=FakeLightningClient())
 
     client = app.test_client()
     response = client.get("/health")
@@ -16,7 +37,7 @@ def test_app_factory_creates_flask_app():
 
 def test_escrow_accept_flow_updates_status():
     app_module = importlib.import_module("app.main")
-    app = app_module.create_app()
+    app = app_module.create_app(lightning_client=FakeLightningClient())
 
     client = app.test_client()
     create_response = client.post(
