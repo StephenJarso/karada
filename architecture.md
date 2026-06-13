@@ -1,208 +1,133 @@
-Here is your updated, comprehensive architecture.md file tailored specifically for your Python REST backend and Next.js frontend. It integrates your existing LNDClient class structure, maps out the database requirements, and handles the "block of wood" fraud loop seamlessly.
-🎴 Architecture & Design Protocol — Project Karada
+# Karada Architecture — Python Protocol Engine
 
-Karada is a trustless, non-custodial cross-border e-commerce escrow application optimized for mobile deployment. It leverages the Bitcoin Lightning Network (HODL Invoices) and real-world logistics telemetry to securely lock funds in transit. This protocol ensures that an international buyer (e.g., in the USA) and a micro-merchant (e.g., in Nairobi) can exchange high-value physical goods without a centralized third party holding custody of the underlying assets.
-1. System Topology & Global Data Flow
+Karada is a protocol layer, not a single-product app. The first product surface is a mobile-friendly Next.js client, but the core protocol supports three product families:
 
-The architecture consists of a unified Next.js progressive web application (running on client mobile devices), a Python REST backend engine (using FastAPI or Flask), and an LND (Lightning Network Daemon) node accessed via REST using macaroon authentication.
+- **Commerce** — courier tracking or delivery signature proof.
+- **School fees** — admission letter, school invoice, or registrar confirmation proof.
+- **Savings** — savings goal, lock confirmation, or custodian attestation proof.
+
+All three flows use the same Lightning escrow primitive: a hidden 32-byte preimage, a SHA256 payment hash, and a BOLT11 HODL invoice. Funds are locked by the Lightning Network HTLC route and are released only when Karada reveals the preimage after agreed proof is verified.
+
+## Canonical stack
+
+The canonical implementation is now the Python backend with a Next.js frontend.
+
+```text
+karada/
+├── backend/
+│   ├── main.py
+│   ├── requirements.txt
+│   └── app/
+│       ├── api.py          # FastAPI REST API
+│       ├── lnd_client.py   # LND REST client with deterministic mock mode
+│       ├── models.py       # SQLAlchemy models and SQLite/PostgreSQL setup
+│       ├── repository.py   # database access layer
+│       ├── services.py     # escrow state machine and protocol rules
+│       └── workers.py      # invoice and oracle polling workers
+├── frontend/
+│   └── app/page.tsx        # product studio, checkout, merchant, oracle UI
+└── designs/
 ```
-+-----------------------------------------------------------------------+
-|                      UNIFIED CLIENT PHONE APPLICATION                 |
-|                                                                       |
-|   [ MERCHANT VIEWS ]                          [ CUSTOMER VIEWS ]      |
-|   - Form: Create Escrow Contract              - Display: Bolt11 QR    |
-|   - Dispatch: Log Tracking ID                 - Action: Accept/Dispute|
-+-----------------------------------------------------------------------+
-                |                                       ^
-                | HTTP REST POSTs                       | WebSockets / polling
-                v                                       | (Real-time Status)
-+-----------------------------------------------------------------------+
-|                         PYTHON REST BACKEND                           |
-|                                                                       |
-|   +-------------------+  +--------------------+  +----------------+   |
-|   |  FastAPI / Flask  |  |   Invoice Poller   |  |  Oracle Worker |   |
-|   |   (REST Routing)  |  | (Status Threads)   |  | (DHL / Courier)|   |
-|   +---------+---------+  +---------+----------+  +--------+-------+   |
-|             |                      |                      |           |
-|             +----------------------+----------------------+           |
-|                                    v                                  |
-|                     PostgreSQL Database (State Storage)               |
-+-----------------------------------------------------------------------+
-                                     |
-                                     | HTTP REST (Macaroon Auth, Verify=False)
-                                     v
-+-----------------------------------------------------------------------+
-|                       LOCAL LND NODE (via Polar)                      |
-|   - Preimage Ledger Vault (Stored in Python backend DB)               |
-|   - HODL Invoice Endpoints (`/v1/invoices/hodl`)                      |
-+-----------------------------------------------------------------------+
-                                     |
-                                     v Lightning Network Channels
-+-----------------------------------------------------------------------+
-|                  THE LIGHTNING NETWORK RAILWAY (HTLC)                 |
-|   🔒 ESCROW SITE: Funds frozen inside network routing scripts.        |
-+-----------------------------------------------------------------------+
+
+## Protocol state machine
+
+```text
+PENDING
+  └─ buyer pays BOLT11 HODL invoice
+HELD
+  └─ merchant/school/savings party submits proof
+IN_PROGRESS
+  └─ oracle verifies proof
+DELIVERED_INSPECTING
+  ├─ buyer accepts -> SETTLED
+  ├─ buyer disputes -> DISPUTED -> SETTLED or REFUNDED
+  └─ inspection window expires -> SETTLED
 ```
-2. Core Protocol Lifecycle (State Machine)
 
-To guarantee absolute protocol safety—including mitigating the risk of a malicious merchant shipping a fraud payload (e.g., shipping a block of wood instead of the contracted artifact)—the transaction transitions through 5 distinct states:
+Refund/cancel paths are available for pending or active escrows. The server never exposes the preimage to users; only the LND client can settle or cancel the invoice.
+
+## Backend API
+
+Run from the repository root:
+
+```bash
+cd backend
+../backend/jarso/bin/pip install -r requirements.txt
+../backend/jarso/bin/uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
-[1. PENDING] ------(Customer Pays Invoice)------> [2. HELD / ESCROWED]
-                                                            |
-                                                   (Merchant Dispatches)
-                                                            v
-[4. DISPUTED] <---(Customer Opens Dispute)--- [3. DELIVERED / INSPECTING]
-      |                                                     |
- (Arbitration)                                     (24h Auto-Settle / Accept)
-      v                                                     v
-[CANCELLED / REFUND]                                [5. SETTLED / PAID]
+
+For local/demo mode, Karada uses mock LND automatically when no LND macaroon is detected:
+
+```bash
+export LND_MOCK=true
 ```
-    PENDING: Merchant defines parameters (Price, Item Name). Python backend generates a secret random 32-byte string (the preimage), calculates its SHA256 payment_hash, records it to PostgreSQL, and calls LND's HODL invoice creator. A Bolt11 string is returned to the UI.
 
-    HELD / ESCROWED: The customer copies the invoice to their phone lightning wallet and executes the payment. The funds pass through the network and freeze at the final routing node hop. The Python invoice poller detects this status change and flips the state in the DB to HELD.
+Core endpoints:
 
-    DELIVERED / INSPECTING (The Fraud Guard): The merchant inputs the DHL tracking number, moving the status to SHIPPED. The Python backend background worker continuously scans the courier API. The moment the package lands at the destination address, the status moves to DELIVERED / INSPECTING. The preimage is not yet released. This opens a strict 24-hour countdown window.
+- `GET /api/v1/products` — product families and proof models.
+- `POST /api/v1/escrow` — create a HODL invoice escrow.
+- `GET /api/v1/escrow` — list escrows, optionally filtered by `product_type` or `status`.
+- `GET /api/v1/escrow/{payment_hash}` — get escrow status.
+- `POST /api/v1/escrow/{payment_hash}/pay` — simulate or record buyer payment.
+- `POST /api/v1/escrow/ship` — commerce courier tracking submission.
+- `POST /api/v1/escrow/{payment_hash}/fulfill` — school fees or savings proof submission.
+- `POST /api/v1/oracle/simulate-delivery` — verify proof and open inspection.
+- `POST /api/v1/escrow/{payment_hash}/accept` — release preimage and settle.
+- `POST /api/v1/escrow/{payment_hash}/dispute` — keep preimage hidden.
+- `POST /api/v1/escrow/{payment_hash}/settle-dispute` — resolve as settle or refund.
+- `POST /api/v1/escrow/{payment_hash}/cancel` — cancel and refund path.
+- `POST /api/v1/workers/auto-release` — run inspection expiry and invoice expiry jobs.
 
-    DISPUTED: If the customer opens the package and discovers a block of wood, they trigger the dispute hook. The timer stops. Funds stay locked in the network. The Karada platform steps in to review photo/video telemetry.
+## LND integration
 
-    SETTLED: If the customer verifies the item and clicks "Accept" (or if the 24-hour timer expires without a dispute), the Python backend sends the preimage to LND's settle endpoint. The frozen funds snap instantly into the merchant's spendable wallet.
+`backend/app/lnd_client.py` wraps LND REST HODL invoice endpoints:
 
-3. Python Backend Architectural Design
+- `POST /v2/invoices/hodl` creates the HODL invoice from a generated preimage.
+- `GET /v1/invoice/{r_hash}` checks whether payment is accepted/held.
+- `POST /v2/invoices/hodl/settle` releases the preimage.
+- `POST /v2/invoices/hodl/cancel` cancels the invoice.
 
-Your Python backend must be extended to support HODL invoices, state persistence, and background logistics polling loop tasks.
-Database Schema (PostgreSQL Essential Model)
-SQL
+When no LND credentials are present, the client returns deterministic `lnbc...` mock invoices so the product can be demoed and tested without a Polar node.
 
-CREATE TYPE escrow_state AS ENUM ('PENDING', 'HELD', 'SHIPPED', 'DELIVERED_INSPECTING', 'DISPUTED', 'SETTLED', 'CANCELLED');
+## Persistence
 
-CREATE TABLE escrows (
-    id SERIAL PRIMARY KEY,
-    payment_hash VARCHAR(64) UNIQUE NOT NULL,      -- Hex encoded representation of r_hash
-    preimage VARCHAR(64) UNIQUE NOT NULL,          -- Hex encoded 32-byte secret code
-    bolt11_invoice TEXT NOT NULL,
-    item_name VARCHAR(255) NOT NULL,
-    amount_sats BIGINT NOT NULL,
-    tracking_id VARCHAR(100) NULL,
-    status escrow_state DEFAULT 'PENDING' NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    delivered_at TIMESTAMP NULL
-);
+The default local database is SQLite:
 
-Extending LNDClient for HODL Operations
+```bash
+sqlite:///./karada.db
+```
 
-Your boilerplate script must be augmented with the following cryptographic primitives to talk to LND's REST endpoints for handling held invoices:
-Python
+For production, set:
 
-import hashlib
-import os
+```bash
+export DATABASE_URL="postgresql+psycopg2://user:password@host:5432/karada"
+```
 
-class LNDClientExtended(LNDClient):
-    
-    def add_hold_invoice(self, amount, memo=""):
-        """
-        Generates a 32-byte preimage, hashes it, and requests a HODL invoice from LND.
-        """
-        preimage = os.urandom(32)
-        payment_hash = hashlib.sha256(preimage).digest()
-        
-        # LND REST requires base64 string encoding for byte fields in JSON requests
-        hash_b64 = base64.b64encode(payment_hash).decode('utf-8')
-        
-        data = {
-            "value": str(amount),
-            "memo": memo,
-            "hash": hash_b64
-        }
-        
-        # POST directly to LND's HODL invoice endpoint
-        resp = self._request("POST", "/v2/invoices/hodl", data)
-        
-        return {
-            "preimage_hex": preimage.hex(),
-            "payment_hash_hex": payment_hash.hex(),
-            "payment_request": resp.get("payment_request")
-        }
+The SQLAlchemy models are database-agnostic and already include indexes for payment hashes, product types, statuses, tracking numbers, and proof references.
 
-    def settle_hold_invoice(self, preimage_hex):
-        """Releases funds to the merchant using the secret preimage key."""
-        preimage_bytes = bytes.fromhex(preimage_hex)
-        preimage_b64 = base64.b64encode(preimage_bytes).decode('utf-8')
-        
-        data = {"preimage": preimage_b64}
-        return self._request("POST", "/v2/invoices/hodl/settle", data)
+## Frontend
 
-    def cancel_hold_invoice(self, payment_hash_hex):
-        """Refunds the customer by breaking the HTLC lock."""
-        hash_bytes = bytes.fromhex(payment_hash_hex)
-        hash_b64 = base64.b64encode(hash_bytes).decode('utf-8')
-        
-        data = {"payment_hash": hash_b64}
-        return self._request("POST", "/v2/invoices/hodl/cancel", data)
+The Next.js app proxies `/api/v1/*` to the Python backend on port `8000`:
 
-Module Component Decomposition
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-    app/api.py (FastAPI / Flask Routing Matrix):
+Open `http://localhost:3000`.
 
-        POST /api/v1/escrow/create: Calls add_hold_invoice(), writes the preimage_hex, payment_hash_hex, and state (PENDING) to PostgreSQL.
+The UI has four operational views:
 
-        POST /api/v1/escrow/ship: Updates the database row matching the hash with the merchant's tracking_id and shifts state to SHIPPED.
+1. **Create** — choose commerce, school fees, or savings and create a HODL invoice.
+2. **Checkout** — scan or copy the BOLT11 invoice and simulate payment.
+3. **Merchant** — submit courier tracking or document/savings proof.
+4. **Oracle** — verify proof and open the buyer inspection window.
 
-        GET /api/v1/escrow/status/<hash>: Fetches current status for the frontend UI loop.
+## Security model
 
-        POST /api/v1/escrow/action: Accepts JSON parameters {hash: "hex", action: "ACCEPT" | "DISPUTE"}.
-
-    app/workers.py (Background Logistics Watcher Thread):
-
-        A separate execution thread running a continuous loop. Every 10 seconds, it queries rows marked SHIPPED or HELD.
-
-        It queries lookup_invoice() to check if the lightning payment hit the node (status becomes ACCEPTED in LND terms), immediately altering PostgreSQL to HELD.
-
-        It pulls active shipping states from a simulated courier service. If tracking shifts to delivered, it mutates the state to DELIVERED_INSPECTING.
-
-4. Frontend Screen Wireframing & User Experience Flow
-
-The frontend is built inside a single Next.js web application optimized for mobile screen dimensions. Role access controls are split into a clear user experience architecture using localized state toggles.
-Global Nav Shell (/layout.jsx)
-
-The topmost element houses a persistent presentation control matrix:
-
-    The Role Slider Component: A clean toggle button component allowing the judge to slide seamlessly between Merchant View, Customer Checkout, and Oracle Control (God Mode).
-
-    The Diagnostic Banner: Displays real-time connectivity status to the local Python server and Bob's node configuration state.
-
-View 1: Merchant Workspace (/merchant)
-
-Designed specifically for the physical asset supplier.
-
-    Form Layout Panel: Contains inputs for Item Title and Value (Sats). Submitting this dynamically loads a loading spinner overlay while the REST call generates the payment hash sequence.
-
-    Logistics Ledger Cards: A vertical list showing existing active sales. Cards in the PENDING state display a waiting text. Cards mutating to HELD display a bright green checkmark alongside an active text field where the merchant inputs the shipping confirmation code to drop the cargo off.
-
-View 2: Customer Checkout & Tracking Tunnel (/checkout/[hash])
-
-The consumer terminal UI. Reads the transaction tracking hash parameter directly from the route parameters.
-
-    The QR Capture Component: Active while state equals PENDING. Renders a highly responsive, clean visual QR block generated dynamically from the underlying bolt11 text layout. Includes a quick action clipboard copy button.
-
-    The Active State Tracking Screen: When state shifts to HELD or SHIPPED, the QR code is dynamically unmounted. It is replaced by a linear step-by-step progress tracking block:
-    [Deposit Received] -> [In Transit via Nairobi Hub] -> [Awaiting Inspection]
-
-    The Action Intervention Drawer: Unlocks exclusively when status matches DELIVERED_INSPECTING. Renders two dominant interactive buttons side-by-side:
-
-        🟢 Accept Package (Green): Confirms item payload integrity. Instantly triggers the Python /api/v1/escrow/action route to settle the invoice.
-
-        🔴 Open Dispute (Red): Halts the 24-hour countdown immediately. Shifts UI state to a locked dispute evaluation status, locking the network escrow safely.
-
-View 3: Oracle Simulation Control Panel (/oracle)
-
-A dedicated dashboard interface built explicitly for hackathon evaluation environments.
-
-    The Telemetry Interceptor: Displays a raw JSON view of all orders globally floating inside the backend network script architecture.
-
-    The Webhook Simulator Engine: Provides a manual overriding trigger button next to active shipments that sends an imitation payload to the Python backend. This instantly tricks the Oracle routine into interpreting a physical courier arrival, allowing the developer to demonstrate the dynamic multi-screen UI transformations without leaving the presentation area.
-
-Implementation Assignments for the Sprint
-
-    Backend Dev: Use the extended LNDClientExtended code above, connect it to your Python framework of choice, and ensure byte-to-string manipulation matches LND's expected base64 format for REST.
-
-    Frontend Dev: Build the single Next.js web application routing framework using basic polling requests against the Python API endpoints to shift screen state smoothly.
+- The preimage is generated server-side and stored only in the escrow record.
+- The API never returns the preimage.
+- Settlement requires either buyer acceptance, auto-release after inspection expiry, or dispute settlement.
+- Disputes keep the preimage hidden until an explicit settlement decision.
+- LND private keys never live in Karada; Karada only calls LND invoice operations with macaroon permissions.
