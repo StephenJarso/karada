@@ -11,7 +11,7 @@ Karada's protocol is simple:
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import List, Optional
 
 from sqlalchemy.orm import Session
@@ -19,6 +19,7 @@ from sqlalchemy.orm import Session
 from .lnd_client import LNDClient
 from .models import Escrow, EscrowStatus, ProductType
 from .repository import EscrowRepository, ShipmentRepository
+from .time import utcnow
 
 
 DEFAULT_INVOICE_EXPIRY_HOURS = 24
@@ -59,7 +60,7 @@ class EscrowService:
         if not self.lnd:
             raise ConnectionError("LND client not available")
 
-        now = datetime.utcnow()
+        now = utcnow()
         result = self.lnd.add_hold_invoice(
             amount_sats,
             memo=self._memo(product_type, title, amount_sats),
@@ -112,8 +113,8 @@ class EscrowService:
             raise ValueError(f"Cannot pay escrow in {escrow.status.value} state")
 
         escrow.status = EscrowStatus.HELD
-        escrow.held_at = datetime.utcnow()
-        escrow.updated_at = datetime.utcnow()
+        escrow.held_at = utcnow()
+        escrow.updated_at = utcnow()
         self.db.commit()
         self.db.refresh(escrow)
         return True
@@ -175,7 +176,7 @@ class EscrowService:
         if latest:
             latest.status = status
             latest.message = message or latest.message
-            latest.updated_at = datetime.utcnow()
+            latest.updated_at = utcnow()
             self.db.commit()
             self.db.refresh(latest)
 
@@ -190,8 +191,8 @@ class EscrowService:
 
         self._settle_escrow(escrow)
         escrow.status = EscrowStatus.SETTLED
-        escrow.settled_at = datetime.utcnow()
-        escrow.updated_at = datetime.utcnow()
+        escrow.settled_at = utcnow()
+        escrow.updated_at = utcnow()
         self.db.commit()
         self.db.refresh(escrow)
         return True
@@ -228,8 +229,8 @@ class EscrowService:
 
         self._cancel_escrow(escrow)
         escrow.status = EscrowStatus.CANCELLED
-        escrow.cancelled_at = datetime.utcnow()
-        escrow.updated_at = datetime.utcnow()
+        escrow.cancelled_at = utcnow()
+        escrow.updated_at = utcnow()
         self.db.commit()
         self.db.refresh(escrow)
         return True
@@ -246,7 +247,7 @@ class EscrowService:
         return [e.to_dict() for e in self.escrow_repo.list_all(product_type=product_type, status=status)]
 
     def auto_release_due_inspections(self) -> int:
-        now = datetime.utcnow()
+        now = utcnow()
         released = 0
         for escrow in self.escrow_repo.list_all(status=EscrowStatus.DELIVERED_INSPECTING):
             if escrow.inspection_deadline and escrow.inspection_deadline <= now:
@@ -255,7 +256,7 @@ class EscrowService:
         return released
 
     def auto_cancel_expired_invoices(self) -> int:
-        now = datetime.utcnow()
+        now = utcnow()
         cancelled = 0
         for escrow in self.escrow_repo.list_all(status=EscrowStatus.PENDING):
             if escrow.invoice_expires_at and escrow.invoice_expires_at <= now:

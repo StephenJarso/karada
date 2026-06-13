@@ -13,6 +13,7 @@ from enum import Enum
 from typing import Optional
 
 from sqlalchemy import BigInteger, Column, DateTime, Enum as SQLEnum, ForeignKey, Integer, String, Text, create_engine
+from .time import utcnow
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
@@ -74,8 +75,8 @@ class Escrow(Base):
     dispute_reason = Column(Text, nullable=True)
     dispute_resolution = Column(Text, nullable=True)
 
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=utcnow, nullable=False)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow, nullable=False)
     held_at = Column(DateTime, nullable=True)
     in_progress_at = Column(DateTime, nullable=True)
     delivered_at = Column(DateTime, nullable=True)
@@ -140,8 +141,8 @@ class Shipment(Base):
     status = Column(String(50), default="PENDING", nullable=False)
     message = Column(Text, nullable=True)
     source = Column(String(50), default="KARADA", nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=utcnow, nullable=False)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow, nullable=False)
 
     escrow = relationship("Escrow", back_populates="shipments")
 

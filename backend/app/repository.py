@@ -4,12 +4,12 @@ Repository layer for Karada escrow and proof-event operations.
 
 from __future__ import annotations
 
-from datetime import datetime
 from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
 from .models import Escrow, EscrowStatus, ProductType, Shipment
+from .time import utcnow
 
 
 class EscrowRepository:
@@ -44,7 +44,7 @@ class EscrowRepository:
         escrow = self.get_by_payment_hash(payment_hash)
         if escrow:
             escrow.status = status
-            escrow.updated_at = datetime.utcnow()
+            escrow.updated_at = utcnow()
             self.db.commit()
             self.db.refresh(escrow)
         return escrow
@@ -55,8 +55,8 @@ class EscrowRepository:
             escrow.tracking_number = tracking_number
             escrow.carrier = carrier
             escrow.status = EscrowStatus.IN_PROGRESS
-            escrow.in_progress_at = datetime.utcnow()
-            escrow.updated_at = datetime.utcnow()
+            escrow.in_progress_at = utcnow()
+            escrow.updated_at = utcnow()
             self.db.commit()
             self.db.refresh(escrow)
         return escrow
@@ -72,8 +72,8 @@ class EscrowRepository:
             escrow.proof_type = proof_type
             escrow.proof_reference = proof_reference
             escrow.status = EscrowStatus.IN_PROGRESS
-            escrow.in_progress_at = datetime.utcnow()
-            escrow.updated_at = datetime.utcnow()
+            escrow.in_progress_at = utcnow()
+            escrow.updated_at = utcnow()
             self.db.commit()
             self.db.refresh(escrow)
         return escrow
@@ -81,9 +81,9 @@ class EscrowRepository:
     def update_delivered_at(self, payment_hash: str) -> Optional[Escrow]:
         escrow = self.get_by_payment_hash(payment_hash)
         if escrow:
-            escrow.delivered_at = datetime.utcnow()
+            escrow.delivered_at = utcnow()
             escrow.status = EscrowStatus.DELIVERED_INSPECTING
-            escrow.updated_at = datetime.utcnow()
+            escrow.updated_at = utcnow()
             self.db.commit()
             self.db.refresh(escrow)
         return escrow
@@ -93,7 +93,7 @@ class EscrowRepository:
         if escrow:
             escrow.dispute_reason = reason
             escrow.status = EscrowStatus.DISPUTED
-            escrow.updated_at = datetime.utcnow()
+            escrow.updated_at = utcnow()
             self.db.commit()
             self.db.refresh(escrow)
         return escrow
@@ -103,11 +103,11 @@ class EscrowRepository:
         if escrow:
             escrow.dispute_resolution = resolution
             escrow.status = EscrowStatus.SETTLED if decision.upper() == "SETTLE" else EscrowStatus.REFUNDED
-            escrow.updated_at = datetime.utcnow()
+            escrow.updated_at = utcnow()
             if escrow.status == EscrowStatus.SETTLED:
-                escrow.settled_at = datetime.utcnow()
+                escrow.settled_at = utcnow()
             else:
-                escrow.cancelled_at = datetime.utcnow()
+                escrow.cancelled_at = utcnow()
             self.db.commit()
             self.db.refresh(escrow)
         return escrow
@@ -189,7 +189,7 @@ class ShipmentRepository:
         if shipment:
             shipment.status = status
             shipment.message = message or shipment.message
-            shipment.updated_at = datetime.utcnow()
+            shipment.updated_at = utcnow()
             self.db.commit()
             self.db.refresh(shipment)
         return shipment
