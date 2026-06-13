@@ -4,6 +4,7 @@ from .api import app
 from .lnd_client import LNDClient
 from .models import Escrow, EscrowStatus, ProductType, Shipment
 from .repository import EscrowRepository, ShipmentRepository
+from .schemas import CreateEscrowRequest, CreateEscrowResponse
 from .services import EscrowService
 from .workers import InvoicePoller, OracleMonitor
 
