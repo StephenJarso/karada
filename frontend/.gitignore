@@ -2,4 +2,5 @@
 node_modules
 package-lock.json
 .env.local
-.DS_Storetsconfig.tsbuildinfo
+.DS_Store
+tsconfig.tsbuildinfo
