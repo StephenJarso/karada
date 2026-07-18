@@ -1,138 +1,74 @@
-# Karada Pitch Deck - Hackathon Presentation
+# Karada Pitch Deck
 
-## The Problem: Cross-Border Trust Deficit
+## The problem: trust without custody
 
-When an artisan in Nairobi sells handcrafted goods to a buyer in New York, a massive trust gap exists that costs Africa billions in lost commerce annually.
+Karada solves trust gaps where two parties need assurance before value moves:
 
-### Traditional Solutions Fail
+- A buyer wants proof that goods, school fees, or savings commitments will be fulfilled.
+- A merchant, school, or savings organizer wants proof that funds are committed before delivering value.
+- Both sides want finality without chargebacks, bank delays, or a centralized escrow operator holding custody.
 
-| Problem | Traditional Escrow | Karada |
-|---------|-----------------|--------|
-| **Trust** | Requires pre-payment or pre-shipment | Cryptographic proof of funds |
-| **Fees** | 3-6% + wire fees | ~0.1% (Lightning fees) |
-| **Speed** | 3-7 business days | Instant settlement |
-| **Chargebacks** | Buyer can reverse payment | Irreversible once settled |
-| **Minimums** | $100+ minimums | Any amount, even 1 satoshi |
+## The Karada protocol
 
----
+Karada uses Lightning HODL invoices and HTLC time-locks:
 
-## Why Not Multisig?
+1. Karada generates a hidden 32-byte preimage.
+2. The preimage hash becomes the invoice payment hash.
+3. The buyer pays a BOLT11 HODL invoice.
+4. Funds are locked in the Lightning Network but not released.
+5. The counterparty submits proof.
+6. An oracle verifies proof and opens an inspection window.
+7. Acceptance reveals the preimage and settles; dispute keeps the preimage hidden.
 
-### Multisig Limitations
-- **Requires wallet integration** - Both parties must use compatible wallets
-- **On-chain only** - Slow and expensive Bitcoin transactions
-- **Complex key management** - 2-of-2 or 2-of-3 schemes require key backup
-- **No time-lock flexibility** - Cannot easily implement refund windows
-- **High barrier to entry** - Non-technical users struggle with key coordination
+## Product families
 
-### HTLC Advantage
-- **BOLT-11 Lightning** - Works with any Lightning wallet
-- **Native time-lock** - Built-in expiry for automatic refunds
-- **No wallet integration** - Just scan a QR code
-- **Atomic swaps** - All-or-nothing settlement
-- **Instant** - Sub-second finality
+Karada is not limited to commerce. The same escrow primitive applies to:
 
----
+| Product | Proof Karada verifies | Settlement condition |
+|---|---|---|
+| Commerce | Courier tracking, delivery signature, or carrier event | Goods delivered and accepted |
+| School fees | Admission letter, invoice, registrar confirmation | School obligation verified |
+| Savings | Savings goal, lock confirmation, custodian attestation | Savings condition verified |
 
-## Why Lightning Over Traditional Currency?
+## Why HTLC/HODL invoices
 
-### The Fiat Problem
-1. **Correspondent banking fees** - Multiple intermediaries take cuts
-2. **Currency conversion losses** - KES to USD to KES erodes margins
-3. **Settlement delays** - T+2 clearing, weekends, holidays
-4. **Reversible payments** - "Friendly fraud" costs merchants 2-5% of revenue
-5. **Capital controls** - Kenya restricts large outflows
+| Traditional escrow | Karada |
+|---|---|
+| Custodian holds funds | Funds are locked in Lightning routing |
+| 3–7 day settlement | Instant settlement after preimage release |
+| High fees and minimums | Sats-scale payments |
+| Chargeback risk | Lightning settlement is final |
+| One product workflow | Reusable protocol for commerce, school fees, and savings |
 
-### Lightning Solution
-- **Direct peer-to-peer** - No intermediaries
-- **Same currency** - Both parties use sats, no conversion
-- **24/7/365** - Bitcoin never sleeps
-- **Irreversible** - Once settled, payment is final
-- **Programmable money** - Smart contracts enforce rules
+## Demo experience
 
----
+The Next.js app has four views:
 
-## How Karada Earns Revenue
+1. **Create** — choose commerce, school fees, or savings and generate a HODL invoice.
+2. **Checkout** — scan/copy the BOLT11 invoice and simulate payment.
+3. **Merchant** — submit courier tracking or document/savings proof.
+4. **Oracle** — verify proof and open the inspection window.
 
-### Revenue Model: Bitcoin Fee Capture
+Run:
 
-Karada operates as a **fee-taking node** in the Lightning Network:
+```bash
+cd backend
+export LND_MOCK=true
+../backend/jarso/bin/uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
-1. **Routing Fees** - We collect tiny fees (1-100 ppm) for routing payments through our node
-2. **No Platform Fees** - We don't charge merchants or buyers directly
-3. **Liquidity Provider** - We provide inbound liquidity to merchants, earning yield
-4. **Future: Premium Features** - Advanced analytics, multi-signature oracles, insurance
-
-### Why This Works
-- **Network effect** - More users = more routing volume
-- **Bitcoin-native** - Revenue is in BTC, not fiat
-- **Scalable** - Fees scale with network usage, not transaction count
-- **Permissionless** - Anyone can run a Karada node
-
----
-
-## Why No Wallet Connection?
-
-### BOLT-11 Magic
-
-**BOLT-11** is the Lightning Network payment invoice format. It contains everything needed:
-
-- **Payment hash** - The cryptographic commitment
-- **Amount** - Exact sats to pay
-- **Expiry** - Time-lock for the HTLC
-- **Destination** - Which node receives the payment
-
-Buyers simply scan a QR code with their existing Lightning wallet. No app install, no account creation, no KYC.
-
-### The Flow
-1. Buyer scans `lnbc50000...` QR code
-2. Wallet pays the HODL invoice
-3. Funds are cryptographically locked
-4. Merchant sees "HELD" status
-5. On delivery, preimage is released
-6. Merchant claims funds
-
----
-
-## Future Ideas
-
-### Phase 2: Multi-Oracle
-- Multiple courier APIs for redundancy
-- Community-verified delivery confirmations
-- Reputation scoring for oracles
-
-### Phase 3: Merchant Tools
-- Point-of-sale integration
-- Inventory management
-- Shipping label generation
-
-### Phase 4: Global Network
-- Federated Karada nodes
-- Cross-node escrow routing
-- Decentralized oracle network
-
----
-
-## Technical Architecture
-
-### State Machine
-```
-PENDING → HELD → SHIPPED → SETTLED
-                   ↓
-                 REFUNDED (on expiry)
+cd ../frontend
+npm run dev
 ```
 
-### Security Model
-- **Preimage never leaves** the Karada server
-- **Time-lock enforced** by Bitcoin consensus
-- **No private keys** stored on server
-- **Audit trail** via payment hashes
+Open `http://localhost:3000`.
 
----
+## Technical stack
 
-## Call to Action
+- **Backend:** Python FastAPI, SQLAlchemy, LND REST HODL invoice client.
+- **Frontend:** Next.js, TypeScript, Tailwind CSS, QR invoice display.
+- **Storage:** SQLite by default; PostgreSQL-ready through `DATABASE_URL`.
+- **Lightning:** BOLT11 HODL invoices, HTLC locks, preimage settlement.
 
-**Karada is ready for the hackathon demo.** 
+## Call to action
 
-Run the backend, open the frontend, and watch trustless commerce in action.
-
+Karada turns trust into a verifiable protocol: lock funds with Lightning, verify real-world proof, then release or dispute without a centralized custodian.

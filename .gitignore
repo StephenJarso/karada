@@ -1,0 +1,20 @@
+# Local runtime
+*.db
+*.sqlite
+.env
+.env.local
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Node
+node_modules/
+.next/
+
+# Build
+dist/
+build/
